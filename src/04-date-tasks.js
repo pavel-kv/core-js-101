@@ -19,8 +19,8 @@
  *    'Tue, 26 Jan 2016 13:48:02 GMT' => Date()
  *    'Sun, 17 May 1998 03:00:00 GMT+01' => Date()
  */
-function parseDataFromRfc2822(/* value */) {
-  throw new Error('Not implemented');
+function parseDataFromRfc2822(value) {
+  return new Date(value);
 }
 
 /**
@@ -34,8 +34,8 @@ function parseDataFromRfc2822(/* value */) {
  *    '2016-01-19T16:07:37+00:00'    => Date()
  *    '2016-01-19T08:07:37Z' => Date()
  */
-function parseDataFromIso8601(/* value */) {
-  throw new Error('Not implemented');
+function parseDataFromIso8601(value) {
+  return new Date(value);
 }
 
 
@@ -53,8 +53,9 @@ function parseDataFromIso8601(/* value */) {
  *    Date(2012,1,1)    => true
  *    Date(2015,1,1)    => false
  */
-function isLeapYear(/* date */) {
-  throw new Error('Not implemented');
+function isLeapYear(date) {
+  const year = date.getFullYear();
+  return ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
 }
 
 
@@ -73,8 +74,18 @@ function isLeapYear(/* date */) {
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,10,0,0,250)     => "00:00:00.250"
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,15,20,10,453)   => "05:20:10.453"
  */
-function timeSpanToString(/* startDate, endDate */) {
-  throw new Error('Not implemented');
+function timeSpanToString(startDate, endDate) {
+  const numToStr = (num, length) => num.toString().padStart(length, '0');
+
+  const timeSpan = new Date(endDate - startDate);
+  const timezone = timeSpan.getTimezoneOffset() / 60;
+
+  const sss = numToStr(timeSpan.getMilliseconds(), 3);
+  const ss = numToStr(timeSpan.getSeconds(), 2);
+  const mm = numToStr(timeSpan.getMinutes(), 2);
+  const hh = numToStr(timeSpan.getHours() + timezone, 2);
+
+  return `${hh}:${mm}:${ss}.${sss}`;
 }
 
 
@@ -94,8 +105,21 @@ function timeSpanToString(/* startDate, endDate */) {
  *    Date.UTC(2016,3,5,18, 0) => Math.PI
  *    Date.UTC(2016,3,5,21, 0) => Math.PI/2
  */
-function angleBetweenClockHands(/* date */) {
-  throw new Error('Not implemented');
+function angleBetweenClockHands(_date) {
+  const date = new Date(_date);
+  const timezone = date.getTimezoneOffset() / 60;
+  const hours = (date.getHours() % 12) + timezone;
+  const minutes = date.getMinutes();
+  const hourDegree = (60 * hours + minutes) * 0.5;
+  const minuteDegree = minutes * 6;
+
+  let angleDegree = Math.abs(hourDegree - minuteDegree);
+
+  if (angleDegree > 180) {
+    angleDegree = 360 - angleDegree;
+  }
+
+  return (angleDegree * Math.PI) / 180;
 }
 
 
